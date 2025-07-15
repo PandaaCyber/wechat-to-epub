@@ -3,7 +3,7 @@ from ebooklib import epub
 import html2text
 
 def fetch_wechat_article(url):
-    api_url = "https://api.tianapi.com/wxnew/?key=YOUR_API_KEY&url=" + url
+    api_url = "https://api.tianapi.com/wxnew/?key=41bda4628125a4dd3ee047ff177f0d71&url=" + url
     # 这里用天行数据微信公众号文章接口，免费额度有限，可以申请免费key
 
     try:
