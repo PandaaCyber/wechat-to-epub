@@ -16,7 +16,8 @@ def fetch_wechat_article(url):
     title_tag = soup.find("h1")
     title = title_tag.text.strip() if title_tag else "未命名文章"
 
-    content_div = soup.find("div", id="js_content")
+    # 这里改为用 class="rich_media_content" 查找文章主体
+    content_div = soup.find("div", class_="rich_media_content")
     if not content_div:
         print(f"⚠️ 找不到文章内容：{url}")
         return title, None
@@ -62,3 +63,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
