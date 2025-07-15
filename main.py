@@ -1,8 +1,10 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from ebooklib import epub
 import html2text
-import time
 
 def fetch_wechat_article(url):
     options = Options()
@@ -13,12 +15,17 @@ def fetch_wechat_article(url):
 
     driver = webdriver.Chrome(options=options)
     driver.get(url)
-    time.sleep(5)  # 等待页面加载完成
 
     try:
-        title = driver.find_element("tag name", "h1").text
-        content_element = driver.find_element("id", "js_content")
+        wait = WebDriverWait(driver, 15)
+        # 等待标题出现
+        title_element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'h2.rich_media_title')))
+        title = title_element.text.strip()
+
+        # 等待内容区出现
+        content_element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.rich_media_content')))
         content_html = content_element.get_attribute('innerHTML')
+
     except Exception as e:
         print(f"❌ 抓取元素失败: {e}")
         driver.quit()
@@ -64,5 +71,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
