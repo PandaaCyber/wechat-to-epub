@@ -1,31 +1,32 @@
 import requests
-from bs4 import BeautifulSoup
 from ebooklib import epub
 import html2text
 
 def fetch_wechat_article(url):
-    headers = {
-        "User-Agent": "Mozilla/5.0",
-    }
-    resp = requests.get(url, headers=headers)
-    if resp.status_code != 200:
-        print(f"❌ Failed to fetch: {url}")
+    api_url = "https://api.tianapi.com/wxnew/?key=YOUR_API_KEY&url=" + url
+    # 这里用天行数据微信公众号文章接口，免费额度有限，可以申请免费key
+
+    try:
+        resp = requests.get(api_url, timeout=10)
+        data = resp.json()
+        if data.get("code") != 200:
+            print(f"❌ API返回错误：{data.get('msg')}")
+            return None, None
+
+        newslist = data.get("newslist")
+        if not newslist or len(newslist) == 0:
+            print("❌ API未返回文章内容")
+            return None, None
+
+        article = newslist[0]
+        title = article.get("title", "未命名文章")
+        content = article.get("content", "")
+        text = html2text.html2text(content)
+        return title, text
+
+    except Exception as e:
+        print(f"❌ 请求API失败：{e}")
         return None, None
-
-    soup = BeautifulSoup(resp.text, "html.parser")
-    title_tag = soup.find("h1")
-    title = title_tag.text.strip() if title_tag else "未命名文章"
-
-    # 这里改为用 class="rich_media_content" 查找文章主体
-    content_div = soup.find("div", class_="rich_media_content")
-    if not content_div:
-        print(f"⚠️ 找不到文章内容：{url}")
-        return title, None
-
-    html = str(content_div)
-    text = html2text.html2text(html)
-
-    return title, text
 
 def create_epub(title, content, filename="output.epub"):
     book = epub.EpubBook()
@@ -63,4 +64,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
